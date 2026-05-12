@@ -1,0 +1,445 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',sans-serif}
+#app{min-height:600px;background:linear-gradient(135deg,#0a1628 0%,#1a2744 50%,#0d1f3c 100%);color:#e0e8ff;padding:0;position:relative;overflow:hidden}
+.grid-bg{position:absolute;top:0;left:0;width:100%;height:100%;background-image:linear-gradient(rgba(0,150,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(0,150,255,.07) 1px,transparent 1px);background-size:40px 40px;pointer-events:none}
+.screen{display:none;padding:24px;min-height:600px;position:relative;z-index:1}
+.screen.active{display:flex;flex-direction:column}
+.logo{font-size:11px;letter-spacing:3px;color:#4a9eff;text-transform:uppercase;margin-bottom:6px}
+h1{font-size:28px;font-weight:700;color:#fff;line-height:1.2;margin-bottom:4px}
+.sub{font-size:14px;color:#7a9cc0;margin-bottom:28px}
+.menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.menu-card{background:rgba(255,255,255,.05);border:1px solid rgba(74,158,255,.2);border-radius:12px;padding:16px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.menu-card:hover{background:rgba(74,158,255,.12);border-color:rgba(74,158,255,.5);transform:translateY(-2px)}
+.menu-card .icon{font-size:28px;margin-bottom:8px}
+.menu-card h3{font-size:14px;font-weight:600;color:#c8d8f0;margin-bottom:4px}
+.menu-card p{font-size:11px;color:#6a8aaa;line-height:1.4}
+.badge{position:absolute;top:8px;right:8px;background:#4a9eff;color:#fff;font-size:9px;padding:2px 6px;border-radius:20px;font-weight:600}
+.xp-bar{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.05);border-radius:8px;padding:10px 14px;margin-bottom:20px}
+.xp-label{font-size:12px;color:#4a9eff;font-weight:600;white-space:nowrap}
+.xp-track{flex:1;background:rgba(255,255,255,.1);border-radius:20px;height:8px;overflow:hidden}
+.xp-fill{height:100%;background:linear-gradient(90deg,#4a9eff,#00d4ff);border-radius:20px;transition:width .5s}
+.xp-val{font-size:12px;color:#7a9cc0;white-space:nowrap}
+.btn{background:rgba(74,158,255,.15);border:1px solid rgba(74,158,255,.4);color:#4a9eff;padding:10px 20px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s;text-align:center}
+.btn:hover{background:rgba(74,158,255,.3);border-color:#4a9eff}
+.btn-primary{background:#4a9eff;color:#fff;border-color:#4a9eff}
+.btn-primary:hover{background:#5aaeff}
+.btn-back{font-size:12px;color:#6a8aaa;background:transparent;border:none;cursor:pointer;padding:4px 0;margin-bottom:16px;display:flex;align-items:center;gap:6px}
+.btn-back:hover{color:#4a9eff}
+.section-title{font-size:18px;font-weight:700;color:#fff;margin-bottom:4px}
+.section-sub{font-size:12px;color:#6a8aaa;margin-bottom:18px}
+.quiz-q{background:rgba(255,255,255,.05);border:1px solid rgba(74,158,255,.15);border-radius:12px;padding:18px;margin-bottom:14px}
+.quiz-q p{font-size:14px;color:#c8d8f0;line-height:1.6;margin-bottom:14px;font-weight:500}
+.opt{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:10px 14px;margin-bottom:8px;cursor:pointer;font-size:13px;color:#a0b8d0;transition:all .15s;display:flex;align-items:center;gap:10px}
+.opt:hover{background:rgba(74,158,255,.1);border-color:rgba(74,158,255,.3);color:#c8d8f0}
+.opt.correct{background:rgba(0,200,100,.15);border-color:#00c864;color:#00c864}
+.opt.wrong{background:rgba(255,60,60,.12);border-color:#ff4040;color:#ff7070}
+.opt .opt-letter{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.progress-bar{background:rgba(255,255,255,.08);border-radius:20px;height:6px;margin-bottom:16px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#4a9eff,#00d4ff);border-radius:20px;transition:width .3s}
+.score-box{background:rgba(74,158,255,.08);border:1px solid rgba(74,158,255,.2);border-radius:12px;padding:16px;text-align:center;margin-bottom:14px}
+.score-num{font-size:42px;font-weight:800;color:#4a9eff;line-height:1}
+.score-lbl{font-size:12px;color:#6a8aaa;margin-top:4px}
+
+/* Drag & Drop */
+.drag-area{display:flex;flex-wrap:wrap;gap:8px;background:rgba(255,255,255,.03);border:1px dashed rgba(74,158,255,.2);border-radius:10px;padding:12px;min-height:52px;margin-bottom:10px}
+.drag-item{background:rgba(74,158,255,.15);border:1px solid rgba(74,158,255,.35);color:#a0c8f0;padding:6px 12px;border-radius:6px;font-size:12px;cursor:grab;user-select:none;transition:all .15s}
+.drag-item:hover{background:rgba(74,158,255,.25)}
+.drag-item.dragging{opacity:.4}
+.drop-zone{background:rgba(255,255,255,.03);border:1px dashed rgba(255,255,255,.15);border-radius:8px;padding:12px;margin-bottom:8px;min-height:44px}
+.drop-zone.over{border-color:#4a9eff;background:rgba(74,158,255,.08)}
+.drop-zone h4{font-size:11px;color:#5a7a9a;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px}
+.drop-zone .dropped{display:flex;flex-wrap:wrap;gap:6px;min-height:28px}
+
+/* Network builder */
+.net-canvas{background:rgba(255,255,255,.03);border:1px solid rgba(74,158,255,.15);border-radius:12px;padding:16px;margin-bottom:12px}
+.net-devices{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.net-device{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:8px 12px;font-size:12px;color:#8ab0d0;cursor:pointer;transition:all .15s;text-align:center}
+.net-device.selected{background:rgba(74,158,255,.2);border-color:#4a9eff;color:#4a9eff}
+.net-map{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px}
+.net-slot{background:rgba(255,255,255,.04);border:1px dashed rgba(255,255,255,.12);border-radius:8px;height:60px;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;transition:all .15s;position:relative}
+.net-slot:hover{border-color:rgba(74,158,255,.4);background:rgba(74,158,255,.07)}
+.net-slot.filled{border-style:solid;border-color:rgba(74,158,255,.3);background:rgba(74,158,255,.1)}
+.net-slot .slot-lbl{font-size:9px;color:#5a7a9a;position:absolute;bottom:4px;width:100%;text-align:center}
+.conn-line{height:2px;background:rgba(74,158,255,.3);position:relative;margin:4px 0}
+.conn-line::after{content:'';position:absolute;right:-4px;top:-4px;width:8px;height:8px;border-radius:50%;background:#4a9eff}
+.feedback{padding:10px 14px;border-radius:8px;font-size:13px;margin-top:10px;line-height:1.5}
+.feedback.ok{background:rgba(0,200,100,.1);border:1px solid rgba(0,200,100,.3);color:#00c864}
+.feedback.err{background:rgba(255,60,60,.1);border:1px solid rgba(255,60,60,.25);color:#ff7070}
+.tip{background:rgba(255,200,0,.07);border-left:3px solid #ffc800;padding:10px 12px;border-radius:0 8px 8px 0;font-size:12px;color:#d0b040;line-height:1.5;margin-bottom:12px}
+.chip{display:inline-flex;align-items:center;gap:4px;background:rgba(74,158,255,.12);border:1px solid rgba(74,158,255,.25);color:#4a9eff;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.star{color:#ffc800;font-size:16px}
+</style>
+
+<div id="app">
+<div class="grid-bg"></div>
+
+<!-- HOME -->
+<div id="home" class="screen active">
+  <div class="logo">TKJ Simulator</div>
+  <h1>Komputer &amp;<br>Jaringan Dasar</h1>
+  <p class="sub">Belajar TKJ dengan cara seru &amp; interaktif</p>
+  <div class="xp-bar">
+    <span class="xp-label">Level <span id="lvl">1</span></span>
+    <div class="xp-track"><div class="xp-fill" id="xp-fill" style="width:0%"></div></div>
+    <span class="xp-val" id="xp-val">0 / 100 XP</span>
+  </div>
+  <div class="menu-grid">
+    <div class="menu-card" onclick="show('quiz')">
+      <div class="icon">🧠</div>
+      <h3>Kuis Interaktif</h3>
+      <p>Uji pengetahuan tentang komputer &amp; jaringan</p>
+      <span class="badge">5 soal</span>
+    </div>
+    <div class="menu-card" onclick="show('drag')">
+      <div class="icon">🔧</div>
+      <h3>Rakit Komputer</h3>
+      <p>Pasangkan komponen ke tempat yang benar</p>
+      <span class="badge">Drag</span>
+    </div>
+    <div class="menu-card" onclick="show('network')">
+      <div class="icon">🌐</div>
+      <h3>Bangun Jaringan</h3>
+      <p>Susun topologi jaringan komputer</p>
+      <span class="badge">Build</span>
+    </div>
+    <div class="menu-card" onclick="show('glossary')">
+      <div class="icon">📖</div>
+      <h3>Glosarium TKJ</h3>
+      <p>Referensi istilah-istilah penting TKJ</p>
+      <span class="badge">Ref</span>
+    </div>
+  </div>
+  <div style="text-align:center;font-size:11px;color:#3a5a7a">
+    <span id="total-score-home">Total XP: 0</span> &nbsp;·&nbsp; Kelas X TKJ
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz" class="screen">
+  <button class="btn-back" onclick="show('home')">← Kembali</button>
+  <div class="section-title">🧠 Kuis Pengetahuan</div>
+  <div class="section-sub">Jawab semua pertanyaan dengan benar!</div>
+  <div class="progress-bar"><div class="progress-fill" id="q-prog" style="width:0%"></div></div>
+  <div id="q-counter" style="font-size:11px;color:#5a7a9a;margin-bottom:12px">Soal 1 / 5</div>
+  <div id="quiz-area"></div>
+  <div id="quiz-result" style="display:none">
+    <div class="score-box">
+      <div class="score-num" id="q-score">0</div>
+      <div class="score-lbl">dari 5 jawaban benar</div>
+    </div>
+    <div id="q-feedback" class="feedback ok"></div>
+    <button class="btn btn-primary" style="margin-top:12px;width:100%" onclick="resetQuiz()">🔄 Ulangi Kuis</button>
+    <button class="btn" style="margin-top:8px;width:100%" onclick="show('home')">← Menu Utama</button>
+  </div>
+</div>
+
+<!-- DRAG DROP -->
+<div id="drag" class="screen">
+  <button class="btn-back" onclick="show('home')">← Kembali</button>
+  <div class="section-title">🔧 Rakit Komputer</div>
+  <div class="section-sub">Seret komponen ke kategori yang tepat!</div>
+  <div class="tip">💡 Tip: Klik komponen lalu klik kategori untuk memasangkan!</div>
+  <div id="drag-components" class="drag-area"></div>
+  <div id="drag-zones"></div>
+  <div id="drag-result"></div>
+  <button class="btn btn-primary" style="width:100%;margin-top:10px" onclick="checkDrag()">✅ Cek Jawaban</button>
+  <button class="btn" style="width:100%;margin-top:8px" onclick="initDrag()">🔄 Reset</button>
+</div>
+
+<!-- NETWORK -->
+<div id="network" class="screen">
+  <button class="btn-back" onclick="show('home')">← Kembali</button>
+  <div class="section-title">🌐 Bangun Jaringan</div>
+  <div class="section-sub">Pilih perangkat &amp; klik slot untuk membangun topologi star!</div>
+  <div class="tip">💡 Tip: Jaringan star membutuhkan 1 switch di tengah dan minimal 3 komputer!</div>
+  <div class="net-canvas">
+    <div style="font-size:11px;color:#5a7a9a;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">Perangkat</div>
+    <div class="net-devices" id="net-devices"></div>
+    <div style="font-size:11px;color:#5a7a9a;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">Topologi (klik slot)</div>
+    <div class="net-map" id="net-map"></div>
+  </div>
+  <div id="net-status" style="font-size:12px;color:#6a8aaa;margin-bottom:10px"></div>
+  <div id="net-result"></div>
+  <div style="display:flex;gap:8px">
+    <button class="btn btn-primary" style="flex:1" onclick="checkNetwork()">✅ Verifikasi Jaringan</button>
+    <button class="btn" style="flex:1" onclick="initNetwork()">🔄 Reset</button>
+  </div>
+</div>
+
+<!-- GLOSSARY -->
+<div id="glossary" class="screen">
+  <button class="btn-back" onclick="show('home')">← Kembali</button>
+  <div class="section-title">📖 Glosarium TKJ</div>
+  <div class="section-sub">Istilah-istilah penting dalam TKJ</div>
+  <input type="text" id="glos-search" placeholder="🔍 Cari istilah..." oninput="filterGlos()" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(74,158,255,.2);color:#c8d8f0;border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:14px">
+  <div id="glos-list"></div>
+</div>
+
+</div>
+
+<script>
+var xp=0,level=1;
+var quizData=[
+  {q:"Apa fungsi utama dari CPU (Central Processing Unit)?",opts:["Menyimpan data permanen","Memproses instruksi dan menjalankan program","Menghubungkan komputer ke internet","Mengatur tampilan layar"],ans:1},
+  {q:"Berapa nilai subnet mask untuk kelas IP Address C?",opts:["255.0.0.0","255.255.0.0","255.255.255.0","255.255.255.255"],ans:2},
+  {q:"Perangkat jaringan mana yang bekerja pada Layer 2 (Data Link) model OSI?",opts:["Router","Hub","Switch","Modem"],ans:2},
+  {q:"Protokol apa yang digunakan untuk mengirim email?",opts:["HTTP","FTP","SMTP","DNS"],ans:2},
+  {q:"Apa kepanjangan dari RAM?",opts:["Read Access Memory","Random Access Memory","Rapid Array Module","Read And Modify"],ans:1},
+  {q:"Topologi jaringan mana yang menggunakan satu kabel utama (backbone)?",opts:["Star","Ring","Bus","Mesh"],ans:2},
+  {q:"Berapa besar 1 Kilobyte (KB) dalam Byte?",opts:["512 Byte","1000 Byte","1024 Byte","2048 Byte"],ans:2}
+];
+var qIdx=0,qScore=0,qAnswered=false;
+var dragSelected=null;
+
+var dragData={
+  components:["CPU","RAM","Harddisk","Monitor","Keyboard","Mouse","Motherboard","GPU","PSU","Router","Switch","Kabel UTP"],
+  categories:{
+    "Input Device":["Keyboard","Mouse"],
+    "Output Device":["Monitor"],
+    "Processing":["CPU","GPU","Motherboard"],
+    "Storage":["Harddisk","RAM"],
+    "Power":["PSU"],
+    "Jaringan":["Router","Switch","Kabel UTP"]
+  }
+};
+var dragUserAnswers={};
+
+var netDevices=[
+  {id:"pc",icon:"💻",label:"PC",color:"rgba(74,158,255,.15)"},
+  {id:"switch",icon:"🔀",label:"Switch",color:"rgba(0,200,100,.15)"},
+  {id:"router",icon:"📡",label:"Router",color:"rgba(255,160,0,.15)"},
+  {id:"server",icon:"🖥️",label:"Server",color:"rgba(200,100,255,.15)"}
+];
+var netSlots=new Array(8).fill(null);
+var netSelected=null;
+
+var glossary=[
+  {term:"IP Address",def:"Alamat unik yang mengidentifikasi perangkat dalam jaringan, terdiri dari 4 oktet angka (contoh: 192.168.1.1)"},
+  {term:"DNS",def:"Domain Name System – layanan yang mengonversi nama domain (web.com) menjadi alamat IP"},
+  {term:"DHCP",def:"Dynamic Host Configuration Protocol – protokol yang otomatis memberikan konfigurasi IP kepada client"},
+  {term:"Subnet Mask",def:"Angka yang menentukan bagian mana dari IP Address yang merupakan Network ID dan Host ID"},
+  {term:"Gateway",def:"Perangkat atau IP yang menjadi pintu keluar jaringan lokal menuju jaringan luar/internet"},
+  {term:"Bandwidth",def:"Kapasitas maksimal transfer data dalam jaringan, diukur dalam Mbps atau Gbps"},
+  {term:"Latency",def:"Waktu tunda pengiriman data dari satu titik ke titik lain dalam jaringan, diukur dalam ms"},
+  {term:"OSI Model",def:"Model referensi 7 lapis yang menggambarkan cara komunikasi jaringan: Physical, Data Link, Network, Transport, Session, Presentation, Application"},
+  {term:"TCP/IP",def:"Suite protokol utama internet yang mendefinisikan cara data dikirim dan diterima antar perangkat"},
+  {term:"Firewall",def:"Sistem keamanan jaringan yang memfilter lalu lintas data masuk dan keluar berdasarkan aturan yang ditetapkan"},
+  {term:"VPN",def:"Virtual Private Network – jaringan privat yang dibangun di atas jaringan publik secara terenkripsi"},
+  {term:"LAN",def:"Local Area Network – jaringan yang mencakup area terbatas seperti ruangan atau gedung"},
+  {term:"WAN",def:"Wide Area Network – jaringan yang mencakup area luas, bisa antar kota atau negara"},
+  {term:"MAC Address",def:"Alamat fisik unik yang tertanam pada kartu jaringan (NIC) setiap perangkat"},
+  {term:"Motherboard",def:"Papan induk yang menghubungkan seluruh komponen utama dalam sebuah komputer"},
+  {term:"Cache",def:"Memori super cepat yang menyimpan data sementara untuk mempercepat akses CPU"}
+];
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(id==='quiz')renderQuiz();
+  if(id==='drag')initDrag();
+  if(id==='network')initNetwork();
+  if(id==='glossary')renderGlossary();
+}
+
+function addXP(n){
+  xp+=n;
+  while(xp>=100){xp-=100;level++}
+  document.getElementById('lvl').textContent=level;
+  document.getElementById('xp-fill').style.width=xp+'%';
+  document.getElementById('xp-val').textContent=xp+' / 100 XP';
+  var tot=(level-1)*100+xp;
+  document.getElementById('total-score-home').textContent='Total XP: '+tot;
+}
+
+/* QUIZ */
+function renderQuiz(){
+  qIdx=0;qScore=0;qAnswered=false;
+  document.getElementById('quiz-result').style.display='none';
+  document.getElementById('quiz-area').style.display='block';
+  var pool=quizData.slice(0,5);
+  showQuestion(pool);
+}
+function resetQuiz(){renderQuiz()}
+function showQuestion(pool){
+  if(qIdx>=pool.length){endQuiz();return}
+  qAnswered=false;
+  document.getElementById('q-counter').textContent='Soal '+(qIdx+1)+' / '+pool.length;
+  document.getElementById('q-prog').style.width=((qIdx/pool.length)*100)+'%';
+  var q=pool[qIdx];
+  var html='<div class="quiz-q"><p>'+q.q+'</p><div id="opts">';
+  var letters=['A','B','C','D'];
+  q.opts.forEach(function(o,i){
+    html+='<div class="opt" id="opt'+i+'" onclick="answerQ('+i+','+q.ans+',this,'+JSON.stringify(pool).replace(/'/g,"\\'")+')"><span class="opt-letter">'+letters[i]+'</span>'+o+'</div>';
+  });
+  html+='</div></div>';
+  document.getElementById('quiz-area').innerHTML=html;
+}
+function answerQ(idx,ans,el,pool){
+  if(qAnswered)return;
+  qAnswered=true;
+  var opts=document.querySelectorAll('.opt');
+  opts[ans].classList.add('correct');
+  if(idx!==ans){el.classList.add('wrong');}
+  else{qScore++; addXP(15);}
+  setTimeout(function(){
+    qIdx++;
+    showQuestion(pool);
+  },1200);
+}
+function endQuiz(){
+  document.getElementById('quiz-area').style.display='none';
+  document.getElementById('quiz-result').style.display='block';
+  document.getElementById('q-score').textContent=qScore;
+  var msgs=["Terus semangat belajar! 💪","Lumayan! Pelajari lagi materinya 📚","Bagus! Hampir sempurna 👍","Luar biasa! Kamu sangat memahami materi! 🏆"];
+  var fb=document.getElementById('q-feedback');
+  if(qScore<=1){fb.className='feedback err';fb.textContent=msgs[0];}
+  else if(qScore<=3){fb.className='feedback ok';fb.textContent=msgs[1];}
+  else if(qScore===4){fb.className='feedback ok';fb.textContent=msgs[2];}
+  else{fb.className='feedback ok';fb.textContent=msgs[3];}
+  document.getElementById('q-prog').style.width='100%';
+}
+
+/* DRAG DROP */
+function initDrag(){
+  dragUserAnswers={};
+  dragSelected=null;
+  Object.keys(dragData.categories).forEach(function(k){dragUserAnswers[k]=[]});
+  var comps=dragData.components.slice();
+  for(var i=comps.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=comps[i];comps[i]=comps[j];comps[j]=t;}
+  var ca=document.getElementById('drag-components');
+  ca.innerHTML='';
+  comps.forEach(function(c){
+    var d=document.createElement('div');
+    d.className='drag-item';
+    d.textContent=c;
+    d.dataset.comp=c;
+    d.onclick=function(){
+      document.querySelectorAll('.drag-item').forEach(function(x){x.style.boxShadow='none'});
+      dragSelected=c;
+      d.style.boxShadow='0 0 0 2px #4a9eff';
+    };
+    ca.appendChild(d);
+  });
+  var zones=document.getElementById('drag-zones');
+  zones.innerHTML='';
+  Object.keys(dragData.categories).forEach(function(cat){
+    var z=document.createElement('div');
+    z.className='drop-zone';
+    z.innerHTML='<h4>'+cat+'</h4><div class="dropped" id="zone-'+cat.replace(/ /g,'_')+'"></div>';
+    z.onclick=function(){
+      if(!dragSelected)return;
+      var src=document.querySelector('.drag-item[data-comp="'+dragSelected+'"]');
+      if(!src)return;
+      dragUserAnswers[cat].push(dragSelected);
+      src.remove();
+      dragSelected=null;
+      var dp=document.getElementById('zone-'+cat.replace(/ /g,'_'));
+      var chip=document.createElement('span');
+      chip.className='chip';
+      chip.textContent=dragUserAnswers[cat][dragUserAnswers[cat].length-1];
+      dp.appendChild(chip);
+    };
+    zones.appendChild(z);
+  });
+  document.getElementById('drag-result').innerHTML='';
+}
+function checkDrag(){
+  var correct=0,total=0;
+  Object.keys(dragData.categories).forEach(function(cat){
+    dragData.categories[cat].forEach(function(item){
+      total++;
+      if(dragUserAnswers[cat]&&dragUserAnswers[cat].indexOf(item)!==-1)correct++;
+    });
+  });
+  var pct=Math.round((correct/total)*100);
+  var res=document.getElementById('drag-result');
+  if(pct>=80){
+    res.innerHTML='<div class="feedback ok">✅ Bagus! '+correct+'/'+total+' komponen benar ('+pct+'%). '+addXP(20)+'</div>';
+    addXP(20);
+  } else {
+    res.innerHTML='<div class="feedback err">❌ '+correct+'/'+total+' benar ('+pct+'%). Pelajari lagi kategori komponen komputer!</div>';
+  }
+}
+
+/* NETWORK */
+function initNetwork(){
+  netSlots=new Array(8).fill(null);
+  netSelected=null;
+  renderNetDevices();
+  renderNetMap();
+  document.getElementById('net-result').innerHTML='';
+  document.getElementById('net-status').textContent='Pilih perangkat kemudian klik slot untuk menempatkan.';
+}
+function renderNetDevices(){
+  var html='';
+  netDevices.forEach(function(d){
+    html+='<div class="net-device" id="nd-'+d.id+'" onclick="selectNetDev(\''+d.id+'\')">'+d.icon+'<br><span style="font-size:10px">'+d.label+'</span></div>';
+  });
+  document.getElementById('net-devices').innerHTML=html;
+}
+function selectNetDev(id){
+  netSelected=id;
+  document.querySelectorAll('.net-device').forEach(function(x){x.classList.remove('selected')});
+  document.getElementById('nd-'+id).classList.add('selected');
+  document.getElementById('net-status').textContent='Perangkat dipilih: '+id+'. Klik slot untuk menempatkan.';
+}
+function renderNetMap(){
+  var html='';
+  for(var i=0;i<8;i++){
+    var d=netSlots[i];
+    var dev=d?netDevices.find(function(x){return x.id===d}):null;
+    html+='<div class="net-slot'+(dev?' filled':'')+'" onclick="placeDevice('+i+')">'+(dev?dev.icon+'<span class="slot-lbl">'+dev.label+'</span>':'<span style="color:#2a4a6a;font-size:11px">+</span>')+'</div>';
+  }
+  document.getElementById('net-map').innerHTML=html;
+}
+function placeDevice(i){
+  if(!netSelected)return;
+  netSlots[i]=netSelected;
+  renderNetMap();
+  var placed=netSlots.filter(Boolean).length;
+  document.getElementById('net-status').textContent=placed+' perangkat ditempatkan. '+('Switch di posisi tengah untuk topologi star!');
+}
+function checkNetwork(){
+  var switches=netSlots.filter(function(s){return s==='switch'}).length;
+  var pcs=netSlots.filter(function(s){return s==='pc'}).length;
+  var routers=netSlots.filter(function(s){return s==='router'}).length;
+  var res=document.getElementById('net-result');
+  if(switches>=1&&pcs>=3){
+    res.innerHTML='<div class="feedback ok">✅ Topologi Star berhasil! Switch: '+switches+', PC: '+pcs+', Router: '+routers+'. Jaringan siap digunakan!</div>';
+    addXP(25);
+  } else if(switches===0){
+    res.innerHTML='<div class="feedback err">❌ Jaringan Star membutuhkan minimal 1 Switch sebagai pusat koneksi!</div>';
+  } else {
+    res.innerHTML='<div class="feedback err">❌ Tambahkan minimal 3 PC untuk membentuk jaringan yang fungsional!</div>';
+  }
+}
+
+/* GLOSSARY */
+function renderGlossary(filter){
+  var list=filter?glossary.filter(function(g){return g.term.toLowerCase().includes(filter.toLowerCase())||g.def.toLowerCase().includes(filter.toLowerCase())}):glossary;
+  var html='';
+  list.forEach(function(g){
+    html+='<div style="background:rgba(255,255,255,.04);border:1px solid rgba(74,158,255,.12);border-radius:10px;padding:12px 14px;margin-bottom:8px">';
+    html+='<div style="font-size:13px;font-weight:600;color:#4a9eff;margin-bottom:4px">'+g.term+'</div>';
+    html+='<div style="font-size:12px;color:#8aaac0;line-height:1.6">'+g.def+'</div></div>';
+  });
+  document.getElementById('glos-list').innerHTML=html||'<div style="color:#5a7a9a;font-size:13px">Istilah tidak ditemukan.</div>';
+}
+function filterGlos(){
+  renderGlossary(document.getElementById('glos-search').value);
+}
+function renderGlossary(filter){
+  var list=filter?glossary.filter(function(g){return g.term.toLowerCase().includes(filter.toLowerCase())||g.def.toLowerCase().includes(filter.toLowerCase())}):glossary;
+  var html='';
+  list.forEach(function(g){
+    html+='<div style="background:rgba(255,255,255,.04);border:1px solid rgba(74,158,255,.12);border-radius:10px;padding:12px 14px;margin-bottom:8px">';
+    html+='<div style="font-size:13px;font-weight:600;color:#4a9eff;margin-bottom:4px">'+g.term+'</div>';
+    html+='<div style="font-size:12px;color:#8aaac0;line-height:1.6">'+g.def+'</div></div>';
+  });
+  document.getElementById('glos-list').innerHTML=html||'<div style="color:#5a7a9a;font-size:13px">Istilah tidak ditemukan.</div>';
+}
+
+show('home');
+</script>
